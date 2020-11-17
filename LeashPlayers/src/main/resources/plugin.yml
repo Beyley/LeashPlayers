@@ -1,0 +1,4 @@
+main: poltixe.spigot.leashplayers.App
+name: LeashPlayers
+version: 0.1
+api-version: 1.15
