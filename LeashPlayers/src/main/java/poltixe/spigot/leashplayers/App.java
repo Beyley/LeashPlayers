@@ -9,6 +9,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class App extends JavaPlugin {
+	public FileConfiguration config = getConfig();
+
 	public List<PlayerState> playerStates = new ArrayList<PlayerState>();
 
 	private ScoreboardManager manager = Bukkit.getScoreboardManager();
@@ -18,6 +20,11 @@ public class App extends JavaPlugin {
 	// Run when the plugin is enabled
 	@Override
 	public void onEnable() {
+		// Setup default config
+		config.addDefault("checkName", false);
+		config.addDefault("nameToCheckFor", "Player Leash");
+		config.options().copyDefaults(true);
+		saveConfig();
 
 		// Registers an event listener
 		getServer().getPluginManager().registerEvents(new EventListener(), this);

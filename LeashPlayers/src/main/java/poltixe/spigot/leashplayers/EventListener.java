@@ -16,6 +16,9 @@ import java.util.ArrayList;
 
 //The event listener
 public class EventListener implements Listener {
+	// Get an instance of the plugin
+	private static App app = App.getPlugin(App.class);
+
 	@EventHandler
 	public void onPlayerMove(PlayerMoveEvent e) {
 		PlayerState playerState = PlayerState.getPlayerStateFromGlobal(e.getPlayer());
@@ -42,14 +45,16 @@ public class EventListener implements Listener {
 
 			if (playerStateThatClicked.playerLeashedTo == playerStateThatGotClicked
 					&& itemHeld.getType() == Material.LEAD
-					&& itemHeld.getItemMeta().getDisplayName().equals("Kidnapping Leash")) {
+					&& (itemHeld.getItemMeta().getDisplayName().equals(app.config.getString("nameToCheckFor"))
+							&& app.config.getBoolean("checkName"))) {
 				playerThatClicked.sendMessage("You cannot leash those who leash you!");
 				return;
 			}
 
 			if (playerStateThatGotClicked.playerLeashedTo == null) {
 				if (itemHeld.getType() == Material.LEAD
-						&& itemHeld.getItemMeta().getDisplayName().equals("Kidnapping Leash")) {
+						&& (itemHeld.getItemMeta().getDisplayName().equals(app.config.getString("nameToCheckFor"))
+								&& app.config.getBoolean("checkName"))) {
 
 					itemHeld.setAmount(itemHeld.getAmount() - 1);
 
