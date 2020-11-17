@@ -6,6 +6,8 @@ import org.apache.commons.lang.Validate;
 import org.bukkit.*;
 import org.bukkit.Particle.DustOptions;
 import org.bukkit.entity.*;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.potion.PotionType;
@@ -94,6 +96,22 @@ public class PlayerState {
         return returnState;
     }
 
+    public void stopLeashingPlayer() {
+        ItemStack lead = new ItemStack(Material.LEAD);
+        ItemMeta meta = lead.getItemMeta();
+        if (app.config.getBoolean("checkName"))
+            meta.setDisplayName(app.config.getString("nameToCheckFor"));
+        lead.setItemMeta(meta);
+
+        this.player.getInventory().addItem(lead);
+
+        this.playerTheyLeashed = null;
+        this.playerTheyLeashed.playerLeashedTo = null;
+
+        this.player.sendMessage("You unleashed " + this.playerTheyLeashed.player.getName() + "!");
+        this.playerTheyLeashed.player.sendMessage("You have been unleashed!");
+    }
+
     public void checkConditions() {
         if (this.playerTheyLeashed != null) {
             this.playerTheyLeashed.checkConditions();
@@ -101,6 +119,11 @@ public class PlayerState {
 
         if (this.playerLeashedTo != null) {
             double distance = this.player.getLocation().distance(this.playerLeashedTo.player.getLocation());
+
+            if (distance > 12) {
+                this.stopLeashingPlayer();
+                return;
+            }
 
             if (distance > 5) {
                 // Bukkit.broadcastMessage("player should be tugged");

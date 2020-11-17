@@ -67,18 +67,7 @@ public class EventListener implements Listener {
 					playerStateThatGotClicked.playerLeashedTo = playerStateThatClicked;
 				}
 			} else if (playerStateThatClicked.playerTheyLeashed == playerStateThatGotClicked) {
-				ItemStack lead = new ItemStack(Material.LEAD);
-				ItemMeta meta = lead.getItemMeta();
-				meta.setDisplayName("Kidnapping Leash");
-				lead.setItemMeta(meta);
-
-				playerThatClicked.getInventory().addItem(lead);
-
-				playerThatClicked.sendMessage("You unleashed " + entityClicked.getName() + "!");
-				entityClicked.sendMessage("You have been unleashed!");
-
-				playerStateThatClicked.playerTheyLeashed = null;
-				playerStateThatGotClicked.playerLeashedTo = null;
+				playerStateThatClicked.stopLeashingPlayer();
 			} else {
 				playerThatClicked.sendMessage("That player is already leashed!");
 			}
