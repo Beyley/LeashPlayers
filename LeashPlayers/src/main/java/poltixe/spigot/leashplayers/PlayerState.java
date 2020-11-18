@@ -120,10 +120,10 @@ public class PlayerState {
         if (this.playerLeashedTo != null) {
             double distance = this.player.getLocation().distance(this.playerLeashedTo.player.getLocation());
 
-            if (distance > 12) {
-                this.stopLeashingPlayer();
-                return;
-            }
+            // if (distance > 12) {
+            // this.stopLeashingPlayer();
+            // return;
+            // }
 
             if (distance > 5) {
                 // Bukkit.broadcastMessage("player should be tugged");
