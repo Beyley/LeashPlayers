@@ -131,12 +131,14 @@ public class PlayerState {
                 Player p1 = this.playerLeashedTo.player; // Main player, in your case, you
                 Player p2 = this.player; // Player to be pulled.
 
+                ItemStack itemHeld = p2.getInventory().getItemInMainHand();
+
                 if (distance < 7) {
                     Vector direction = p1.getLocation().toVector().subtract(p2.getLocation().toVector()).normalize()
                             .multiply(.5);
 
-                    if (app.config.getBoolean("cursed")) {
-                        p2.setVelocity(p2.getVelocity().add(direction));
+                    if (app.config.getBoolean("cursed") && itemHeld.getItemMeta().getDisplayName()
+                            .equals(app.config.getString("cursedNameToCheckFor"))) {
                     } else {
                         p2.setVelocity(direction);
                     }
@@ -144,7 +146,8 @@ public class PlayerState {
                     Vector direction = p1.getLocation().toVector().subtract(p2.getLocation().toVector()).normalize()
                             .multiply(1);
 
-                    if (app.config.getBoolean("cursed")) {
+                    if (app.config.getBoolean("cursed") && itemHeld.getItemMeta().getDisplayName()
+                            .equals(app.config.getString("cursedNameToCheckFor"))) {
                         p2.setVelocity(p2.getVelocity().add(direction));
                     } else {
                         p2.setVelocity(direction);
