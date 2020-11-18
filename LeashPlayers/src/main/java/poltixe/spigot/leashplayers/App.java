@@ -13,10 +13,6 @@ public class App extends JavaPlugin {
 
 	public List<PlayerState> playerStates = new ArrayList<PlayerState>();
 
-	private ScoreboardManager manager = Bukkit.getScoreboardManager();
-	private Scoreboard board = manager.getNewScoreboard();
-	public Team nocollide = board.registerNewTeam("nocollide");
-
 	// Run when the plugin is enabled
 	@Override
 	public void onEnable() {
