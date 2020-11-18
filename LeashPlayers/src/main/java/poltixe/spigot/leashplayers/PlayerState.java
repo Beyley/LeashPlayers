@@ -105,8 +105,8 @@ public class PlayerState {
 
         this.player.getInventory().addItem(lead);
 
-        this.playerTheyLeashed = null;
         this.playerTheyLeashed.playerLeashedTo = null;
+        this.playerTheyLeashed = null;
 
         this.player.sendMessage("You unleashed " + this.playerTheyLeashed.player.getName() + "!");
         this.playerTheyLeashed.player.sendMessage("You have been unleashed!");
