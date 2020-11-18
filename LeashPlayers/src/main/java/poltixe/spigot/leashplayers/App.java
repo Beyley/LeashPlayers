@@ -22,8 +22,10 @@ public class App extends JavaPlugin {
 	public void onEnable() {
 		// Setup default config
 		config.addDefault("checkName", false);
+		config.addDefault("cursedCheckName", false);
 		config.addDefault("cursed", false);
 		config.addDefault("nameToCheckFor", "Player Leash");
+		config.addDefault("cursedNameToCheckFor", "Cursed Leash");
 		config.options().copyDefaults(true);
 		saveConfig();
 

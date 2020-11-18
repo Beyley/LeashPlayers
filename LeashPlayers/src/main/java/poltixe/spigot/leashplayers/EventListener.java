@@ -46,15 +46,19 @@ public class EventListener implements Listener {
 			if (playerStateThatClicked.playerLeashedTo == playerStateThatGotClicked
 					&& itemHeld.getType() == Material.LEAD
 					&& (itemHeld.getItemMeta().getDisplayName().equals(app.config.getString("nameToCheckFor"))
-							&& app.config.getBoolean("checkName"))) {
+							&& (app.config.getBoolean("checkName"))
+							|| (itemHeld.getItemMeta().getDisplayName()
+									.equals(app.config.getString("cursedNameToCheckFor"))
+									&& app.config.getBoolean("cursedCheckName")))) {
 				playerThatClicked.sendMessage("You cannot leash those who leash you!");
 				return;
 			}
 
 			if (playerStateThatGotClicked.playerLeashedTo == null) {
-				if (itemHeld.getType() == Material.LEAD
-						&& (itemHeld.getItemMeta().getDisplayName().equals(app.config.getString("nameToCheckFor"))
-								&& app.config.getBoolean("checkName"))) {
+				if (itemHeld.getType() == Material.LEAD && ((itemHeld.getItemMeta().getDisplayName()
+						.equals(app.config.getString("nameToCheckFor")) && app.config.getBoolean("checkName"))
+						|| (itemHeld.getItemMeta().getDisplayName().equals(app.config.getString("cursedNameToCheckFor"))
+								&& app.config.getBoolean("cursedCheckName")))) {
 
 					itemHeld.setAmount(itemHeld.getAmount() - 1);
 
