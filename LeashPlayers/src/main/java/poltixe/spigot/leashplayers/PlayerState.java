@@ -24,7 +24,6 @@ public class PlayerState {
 
     PlayerState(Player player) {
         this.player = player;
-        this.checkId = -1;
         this.playerLeashedTo = null;
         this.playerTheyLeashed = null;
         this.chicken = null;
