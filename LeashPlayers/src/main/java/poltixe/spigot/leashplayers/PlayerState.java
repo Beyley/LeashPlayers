@@ -97,19 +97,23 @@ public class PlayerState {
     }
 
     public void stopLeashingPlayer() {
+        // Bukkit.broadcastMessage("(DEBUG)Stopping the leash");
         ItemStack lead = new ItemStack(Material.LEAD);
         ItemMeta meta = lead.getItemMeta();
+
         if (app.config.getBoolean("checkName"))
             meta.setDisplayName(app.config.getString("nameToCheckFor"));
         lead.setItemMeta(meta);
 
+        // Bukkit.broadcastMessage("(DEBUG)ADDING THE ITEM");
         this.player.getInventory().addItem(lead);
-
-        this.playerTheyLeashed.playerLeashedTo = null;
-        this.playerTheyLeashed = null;
 
         this.player.sendMessage("You unleashed " + this.playerTheyLeashed.player.getName() + "!");
         this.playerTheyLeashed.player.sendMessage("You have been unleashed!");
+
+        // Bukkit.broadcastMessage("(DEBUG)RESETTING VARIABLES");
+        this.playerTheyLeashed.playerLeashedTo = null;
+        this.playerTheyLeashed = null;
     }
 
     public void checkConditions() {
