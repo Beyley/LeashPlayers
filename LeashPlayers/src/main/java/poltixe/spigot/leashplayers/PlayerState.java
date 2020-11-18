@@ -135,12 +135,20 @@ public class PlayerState {
                     Vector direction = p1.getLocation().toVector().subtract(p2.getLocation().toVector()).normalize()
                             .multiply(.5);
 
-                    p2.setVelocity(direction);
+                    if (app.config.getBoolean("cursed")) {
+                        p2.setVelocity(p2.getVelocity().add(direction));
+                    } else {
+                        p2.setVelocity(direction);
+                    }
                 } else {
                     Vector direction = p1.getLocation().toVector().subtract(p2.getLocation().toVector()).normalize()
                             .multiply(1);
 
-                    p2.setVelocity(direction);
+                    if (app.config.getBoolean("cursed")) {
+                        p2.setVelocity(p2.getVelocity().add(direction));
+                    } else {
+                        p2.setVelocity(direction);
+                    }
                 }
 
             }
