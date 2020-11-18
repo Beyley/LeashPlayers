@@ -60,6 +60,15 @@ public class EventListener implements Listener {
 						|| (itemHeld.getItemMeta().getDisplayName().equals(app.config.getString("cursedNameToCheckFor"))
 								&& app.config.getBoolean("cursedCheckName")))) {
 
+					if ((itemHeld.getItemMeta().getDisplayName().equals(app.config.getString("cursedNameToCheckFor"))
+							&& app.config.getBoolean("cursedCheckName"))) {
+						playerStateThatClicked.isCursed = true;
+						playerStateThatGotClicked.isCursed = true;
+					} else {
+						playerStateThatClicked.isCursed = false;
+						playerStateThatGotClicked.isCursed = false;
+					}
+
 					itemHeld.setAmount(itemHeld.getAmount() - 1);
 
 					playerThatClicked.getInventory().setItemInMainHand(itemHeld);
