@@ -36,6 +36,7 @@ public class EventListener implements Listener {
 		Entity entityClicked = e.getRightClicked();
 
 		if (entityClicked instanceof Player) {
+			// Bukkit.broadcastMessage("IS PLAYER");
 			// itemHeld.getItemMeta().getDisplayName().equals("Kidnapping Leash")
 
 			ItemStack itemHeld = playerThatClicked.getInventory().getItemInMainHand();
@@ -55,10 +56,43 @@ public class EventListener implements Listener {
 			}
 
 			if (playerStateThatGotClicked.playerLeashedTo == null) {
-				if (itemHeld.getType() == Material.LEAD && ((itemHeld.getItemMeta().getDisplayName()
-						.equals(app.config.getString("nameToCheckFor")) && app.config.getBoolean("checkName"))
-						|| (itemHeld.getItemMeta().getDisplayName().equals(app.config.getString("cursedNameToCheckFor"))
-								&& app.config.getBoolean("cursedCheckName")))) {
+				// Bukkit.broadcastMessage("PLAYER CAN BE LEASHED");
+
+				// && ((itemHeld.getItemMeta().getDisplayName()
+				// .equals(app.config.getString("nameToCheckFor")) &&
+				// app.config.getBoolean("checkName"))
+				// ||
+				// (itemHeld.getItemMeta().getDisplayName().equals(app.config.getString("cursedNameToCheckFor"))
+				// && app.config.getBoolean("cursedCheckName")))
+
+				if (itemHeld.getType() == Material.LEAD) {
+					boolean wrongName = false;
+
+					if (app.config.getBoolean("checkName")) {
+						if (!itemHeld.getItemMeta().getDisplayName().equals(app.config.getString("nameToCheckFor"))) {
+							// Bukkit.broadcastMessage("WRONG NAME FOR NORMAL");
+							wrongName = true;
+						} else {
+							wrongName = false;
+						}
+					}
+
+					if (wrongName) {
+						if (app.config.getBoolean("cursedCheckName")) {
+							if (!itemHeld.getItemMeta().getDisplayName()
+									.equals(app.config.getString("cursedNameToCheckFor"))) {
+								// Bukkit.broadcastMessage("WRONG NAME FOR CURSED");
+								wrongName = true;
+							} else {
+								wrongName = false;
+							}
+						}
+					}
+
+					if (wrongName) {
+						// Bukkit.broadcastMessage("WRONG NAME");
+						return;
+					}
 
 					if ((itemHeld.getItemMeta().getDisplayName().equals(app.config.getString("cursedNameToCheckFor"))
 							&& app.config.getBoolean("cursedCheckName"))) {
@@ -67,6 +101,11 @@ public class EventListener implements Listener {
 					} else {
 						playerStateThatClicked.isCursed = false;
 						playerStateThatGotClicked.isCursed = false;
+					}
+
+					if (app.config.getBoolean("cursed") && !app.config.getBoolean("cursedCheckName")) {
+						playerStateThatClicked.isCursed = true;
+						playerStateThatGotClicked.isCursed = true;
 					}
 
 					itemHeld.setAmount(itemHeld.getAmount() - 1);

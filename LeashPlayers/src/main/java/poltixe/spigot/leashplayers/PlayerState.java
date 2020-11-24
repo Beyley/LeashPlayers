@@ -101,8 +101,12 @@ public class PlayerState {
         ItemStack lead = new ItemStack(Material.LEAD);
         ItemMeta meta = lead.getItemMeta();
 
-        if (app.config.getBoolean("checkName"))
+        if (app.config.getBoolean("checkName") && !this.isCursed)
             meta.setDisplayName(app.config.getString("nameToCheckFor"));
+        lead.setItemMeta(meta);
+
+        if (app.config.getBoolean("cursedCheckName") && this.isCursed)
+            meta.setDisplayName(app.config.getString("cursedNameToCheckFor"));
         lead.setItemMeta(meta);
 
         // Bukkit.broadcastMessage("(DEBUG)ADDING THE ITEM");
