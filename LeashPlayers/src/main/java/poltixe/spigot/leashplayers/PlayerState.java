@@ -13,7 +13,7 @@ public class PlayerState {
     public PlayerState dominant;
     public PlayerState submissive;
     public boolean isCursed;
-    private Entity invisEntity;
+    public Entity invisEntity;
 
     PlayerState(Player player) {
         this.player = player;

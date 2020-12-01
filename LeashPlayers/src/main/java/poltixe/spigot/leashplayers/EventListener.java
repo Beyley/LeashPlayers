@@ -27,6 +27,30 @@ public class EventListener implements Listener {
 	}
 
 	@EventHandler
+	public void onPlayerDisconnect(PlayerQuitEvent e) {
+		PlayerState playerState = PlayerState.getPlayerStateFromGlobal(e.getPlayer());
+
+		if (playerState.dominant != null) {
+			playerState.player.damage(5);
+			playerState.dominant.stopLeashingPlayer();
+		}
+
+		app.playerStates.remove(playerState);
+	}
+
+	@EventHandler
+	public void onUnleashEntitiy(PlayerUnleashEntityEvent e) {
+		for (PlayerState state : app.playerStates) {
+			if (state.submissive != null) {
+				if (state.submissive.invisEntity == e.getEntity()) {
+					state.stopLeashingPlayer();
+					e.setCancelled(true);
+				}
+			}
+		}
+	}
+
+	@EventHandler
 	public void onPlayerInteractAtEntity(PlayerInteractAtEntityEvent e) {
 		if (e.getHand() == EquipmentSlot.OFF_HAND) {
 			return; // off hand packet, ignore.
