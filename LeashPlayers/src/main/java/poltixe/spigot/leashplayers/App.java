@@ -1,9 +1,7 @@
 package poltixe.spigot.leashplayers;
 
-import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.scoreboard.*;
 
 import java.util.ArrayList;
 import java.util.List;

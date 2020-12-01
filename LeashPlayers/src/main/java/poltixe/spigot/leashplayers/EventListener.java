@@ -44,8 +44,7 @@ public class EventListener implements Listener {
 			PlayerState playerStateThatClicked = PlayerState.getPlayerStateFromGlobal(playerThatClicked);
 			PlayerState playerStateThatGotClicked = PlayerState.getPlayerStateFromGlobal((Player) entityClicked);
 
-			if (playerStateThatClicked.playerLeashedTo == playerStateThatGotClicked
-					&& itemHeld.getType() == Material.LEAD
+			if (playerStateThatClicked.dominant == playerStateThatGotClicked && itemHeld.getType() == Material.LEAD
 					&& (itemHeld.getItemMeta().getDisplayName().equals(app.config.getString("nameToCheckFor"))
 							&& (app.config.getBoolean("checkName"))
 							|| (itemHeld.getItemMeta().getDisplayName()
@@ -55,7 +54,7 @@ public class EventListener implements Listener {
 				return;
 			}
 
-			if (playerStateThatGotClicked.playerLeashedTo == null) {
+			if (playerStateThatGotClicked.dominant == null) {
 				// Bukkit.broadcastMessage("PLAYER CAN BE LEASHED");
 
 				// && ((itemHeld.getItemMeta().getDisplayName()
@@ -115,10 +114,10 @@ public class EventListener implements Listener {
 					playerThatClicked.sendMessage("You leashed " + entityClicked.getName() + "!");
 					entityClicked.sendMessage("You have been leashed!");
 
-					playerStateThatClicked.playerTheyLeashed = playerStateThatGotClicked;
-					playerStateThatGotClicked.playerLeashedTo = playerStateThatClicked;
+					playerStateThatClicked.submissive = playerStateThatGotClicked;
+					playerStateThatGotClicked.dominant = playerStateThatClicked;
 				}
-			} else if (playerStateThatClicked.playerTheyLeashed == playerStateThatGotClicked) {
+			} else if (playerStateThatClicked.submissive == playerStateThatGotClicked) {
 				playerStateThatClicked.stopLeashingPlayer();
 			} else {
 				playerThatClicked.sendMessage("That player is already leashed!");
