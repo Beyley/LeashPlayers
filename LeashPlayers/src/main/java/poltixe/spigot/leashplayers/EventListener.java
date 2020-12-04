@@ -33,6 +33,8 @@ public class EventListener implements Listener {
 		if (playerState.dominant != null) {
 			playerState.player.damage(5);
 			playerState.dominant.stopLeashingPlayer();
+		} else if (playerState.submissive != null) {
+			playerState.stopLeashingPlayer();
 		}
 
 		app.playerStates.remove(playerState);
