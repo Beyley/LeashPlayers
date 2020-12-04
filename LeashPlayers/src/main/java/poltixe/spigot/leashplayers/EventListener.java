@@ -6,6 +6,7 @@ import org.bukkit.*;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.*;
 import org.bukkit.event.*;
+import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.weather.WeatherChangeEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
@@ -38,6 +39,17 @@ public class EventListener implements Listener {
 		}
 
 		app.playerStates.remove(playerState);
+	}
+
+	@EventHandler
+	public void onPlayerDie(PlayerDeathEvent e) {
+		PlayerState playerState = PlayerState.getPlayerStateFromGlobal(e.getEntity());
+
+		if (playerState.dominant != null) {
+			playerState.dominant.stopLeashingPlayer();
+		} else if (playerState.submissive != null) {
+			playerState.stopLeashingPlayer();
+		}
 	}
 
 	@EventHandler
