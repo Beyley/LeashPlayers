@@ -33,9 +33,9 @@ public class EventListener implements Listener {
 
 		if (playerState.dominant != null) {
 			playerState.player.damage(5);
-			playerState.dominant.stopLeashingPlayer();
-		} else if (playerState.submissive != null) {
-			playerState.stopLeashingPlayer();
+			playerState.dominant.stopLeashingPlayer(playerState);
+		} else if (playerState.submissive.size() > 0) {
+			playerState.stopLeashingAllPlayers();
 		}
 
 		app.playerStates.remove(playerState);
@@ -46,21 +46,9 @@ public class EventListener implements Listener {
 		PlayerState playerState = PlayerState.getPlayerStateFromGlobal(e.getEntity());
 
 		if (playerState.dominant != null) {
-			playerState.dominant.stopLeashingPlayer();
-		} else if (playerState.submissive != null) {
-			playerState.stopLeashingPlayer();
-		}
-	}
-
-	@EventHandler
-	public void onUnleashEntitiy(PlayerUnleashEntityEvent e) {
-		for (PlayerState state : app.playerStates) {
-			if (state.submissive != null) {
-				if (state.submissive.invisEntity == e.getEntity()) {
-					state.stopLeashingPlayer();
-					e.setCancelled(true);
-				}
-			}
+			playerState.dominant.stopLeashingPlayer(playerState);
+		} else if (playerState.submissive.size() > 0) {
+			playerState.stopLeashingAllPlayers();
 		}
 	}
 
@@ -152,11 +140,11 @@ public class EventListener implements Listener {
 					playerThatClicked.sendMessage("You leashed " + entityClicked.getName() + "!");
 					entityClicked.sendMessage("You have been leashed!");
 
-					playerStateThatClicked.submissive = playerStateThatGotClicked;
+					playerStateThatClicked.submissive.add(playerStateThatGotClicked);
 					playerStateThatGotClicked.dominant = playerStateThatClicked;
 				}
-			} else if (playerStateThatClicked.submissive == playerStateThatGotClicked) {
-				playerStateThatClicked.stopLeashingPlayer();
+			} else if (playerStateThatClicked.submissive.indexOf(playerStateThatGotClicked) != -1) {
+				playerStateThatClicked.stopLeashingPlayer(playerStateThatGotClicked);
 			} else {
 				playerThatClicked.sendMessage("That player is already leashed!");
 			}

@@ -1,5 +1,7 @@
 package poltixe.spigot.leashplayers;
 
+import java.util.*;
+
 import org.bukkit.*;
 import org.bukkit.entity.*;
 import org.bukkit.inventory.ItemStack;
@@ -11,14 +13,14 @@ import org.bukkit.util.Vector;
 public class PlayerState {
     public Player player;
     public PlayerState dominant;
-    public PlayerState submissive;
+    public List<PlayerState> submissive;
     public boolean isCursed;
     public Entity invisEntity;
 
     PlayerState(Player player) {
         this.player = player;
         this.dominant = null;
-        this.submissive = null;
+        this.submissive = new ArrayList<PlayerState>();
         this.invisEntity = null;
         this.isCursed = false;
     }
@@ -69,10 +71,10 @@ public class PlayerState {
         return returnState;
     }
 
-    public void stopLeashingPlayer() {
-        if (this.submissive.invisEntity != null) {
-            this.submissive.invisEntity.remove();
-            this.submissive.invisEntity = null;
+    public void stopLeashingPlayer(PlayerState state) {
+        if (state.invisEntity != null) {
+            state.invisEntity.remove();
+            state.invisEntity = null;
         }
 
         // Bukkit.broadcastMessage("(DEBUG)Stopping the leash");
@@ -90,18 +92,23 @@ public class PlayerState {
         // Bukkit.broadcastMessage("(DEBUG)ADDING THE ITEM");
         this.player.getInventory().addItem(lead);
 
-        this.player.sendMessage("You unleashed " + this.submissive.player.getName() + "!");
-        this.submissive.player.sendMessage("You have been unleashed!");
+        this.player.sendMessage("You unleashed " + state.player.getName() + "!");
+        state.player.sendMessage("You have been unleashed!");
 
         // Bukkit.broadcastMessage("(DEBUG)RESETTING VARIABLES");
-        this.submissive.dominant = null;
-        this.submissive = null;
+        state.dominant = null;
+        this.submissive.remove(state);
+    }
+
+    public void stopLeashingAllPlayers() {
+        for (PlayerState state : this.submissive) {
+            this.stopLeashingPlayer(state);
+        }
     }
 
     public void checkConditions() {
-        if (this.submissive != null) {
-            this.submissive.checkConditions();
-        }
+        for (PlayerState state : this.submissive)
+            state.checkConditions();
 
         if (this.dominant != null) {
             double distance = this.player.getLocation().distance(this.dominant.player.getLocation());
