@@ -1,5 +1,6 @@
 package poltixe.spigot.leashplayers;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
@@ -13,6 +14,7 @@ import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import poltixe.spigot.leashplayers.Pair.LeashType;
 
+import java.text.MessageFormat;
 import java.util.List;
 import java.util.Objects;
 
@@ -23,10 +25,12 @@ public class EventListener implements Listener {
 	
 	@EventHandler
 	public void onPlayerMove(PlayerMoveEvent e) {
-		List<Pair> pairs = Pair.getAllSubmissivePairs(e.getPlayer());
+		// When a player moves, get all pairs the player is associated with
+		List<ReturnPair> pairs = Pair.getAllPairs(e.getPlayer());
 		
-		for (Pair pair : pairs)
-			pair.checkConditions();
+		//Check the conditions of each pair
+		for (ReturnPair pair : pairs)
+			pair.Pair.checkConditions();
 	}
 	
 	@EventHandler
@@ -48,11 +52,8 @@ public class EventListener implements Listener {
 		Player currentPlayer = e.getEntity();
 		List<ReturnPair> pairs = Pair.getAllPairs(currentPlayer);
 		
-		for (ReturnPair returnPair : pairs) {
-			Pair pair = returnPair.Pair;
-			
-			pair.stopLeashing();
-		}
+		for (ReturnPair returnPair : pairs)
+			returnPair.Pair.stopLeashing();
 	}
 	
 	@EventHandler
@@ -65,24 +66,28 @@ public class EventListener implements Listener {
 		
 		if (submissive instanceof Player) {
 			ItemStack itemHeld = dominant.getInventory().getItemInMainHand();
-			String leadName = Objects.requireNonNull(itemHeld.getItemMeta().displayName()).toString();
+			
+			String leadName = "";
+			if(itemHeld.getItemMeta() != null)
+				leadName = itemHeld.getItemMeta().displayName() == null ? "" : Objects.requireNonNull(itemHeld.getItemMeta().displayName()).toString();
 			
 			boolean canLeash =
-					//#region ugly shit
-					itemHeld.getType() == Material.LEAD &&
-							
-							(leadName.equals(app.config.getString("nameToCheckFor")) &&
-									(app.config.getBoolean("checkName")) ||
-									
-									(leadName.equals(app.config.getString("cursedNameToCheckFor")) &&
-											app.config.getBoolean("cursedCheckName")));
+			//#region ugly shit
+					itemHeld.getType() == Material.LEAD;
 			//#endregion
-			
-			if (!canLeash)
-				return;
 			
 			List<ReturnPair> dominantPairs = Pair.getAllPairs(dominant);
 			List<ReturnPair> submissivePairs = Pair.getAllPairs((Player) submissive);
+			
+			for (ReturnPair pair : dominantPairs) {
+				if (pair.IsDominant && pair.Pair.Dominant.equals(dominant) && pair.Pair.Submissive.equals(submissive)) {
+					pair.Pair.stopLeashing();
+					return;
+				}
+			}
+			
+			if (!canLeash)
+				return;
 			
 			// Checks if the player already is leashed
 			for (ReturnPair pair : submissivePairs) {
@@ -92,16 +97,9 @@ public class EventListener implements Listener {
 				}
 			}
 			
-			for (ReturnPair pair : dominantPairs) {
-				if (pair.Pair.Dominant.equals(dominant)) {
+			for (ReturnPair pair : submissivePairs) {
+				if (pair.Pair.Dominant.equals(submissive)) {
 					dominant.sendMessage("You cannot leash those who leash you!");
-					return;
-				}
-			}
-			
-			for (ReturnPair pair : dominantPairs) {
-				if (pair.IsDominant && pair.Pair.Dominant.equals(dominant) && pair.Pair.Submissive.equals(submissive)) {
-					pair.Pair.stopLeashing();
 					return;
 				}
 			}

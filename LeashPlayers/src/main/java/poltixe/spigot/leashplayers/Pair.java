@@ -9,6 +9,8 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,10 +23,9 @@ public class Pair {
 	public LeashType Type;
 	private Entity invisibleEntity;
 	
-	public Pair() {
-	}
+	public Pair() { }
 	
-	public static List<Pair> getAllSubmissivePairs(Player dominant) {
+	public static @NotNull List<Pair> getAllSubmissivePairs(Player dominant) {
 		List<Pair> list = new ArrayList<>();
 		for (Pair pair : app.Pairs) {
 			if (pair.Dominant.equals(dominant))
@@ -34,7 +35,7 @@ public class Pair {
 		return list;
 	}
 	
-	public static Pair getDominantPair(Player submissive) {
+	public static @Nullable Pair getDominantPair(Player submissive) {
 		for (Pair pair : app.Pairs) {
 			if (pair.Submissive.equals(submissive))
 				return pair;
@@ -43,7 +44,7 @@ public class Pair {
 		return null;
 	}
 	
-	public static List<ReturnPair> getAllPairs(Player player) {
+	public static @NotNull List<ReturnPair> getAllPairs(Player player) {
 		List<ReturnPair> list = new ArrayList<>();
 		for (Pair pair : app.Pairs) {
 			if (pair.Dominant.equals(player))
@@ -83,9 +84,11 @@ public class Pair {
 	}
 	
 	public void checkConditions() {
-		double distance = this.Submissive.getLocation().distance(this.Dominant.getLocation());
+		// Gets the distance between the 2 players
+		double playerDistance = this.Submissive.getLocation().distance(this.Dominant.getLocation());
 		
-		if (distance > 5) {
+		// If the players are over 5 meters away, move them closer
+		if (playerDistance > 5) {
 			Player p1 = this.Dominant; // Main player
 			Player p2 = this.Submissive; // Player to be pulled.
 			
@@ -98,9 +101,16 @@ public class Pair {
 			}
 		}
 		
-		if (this.invisibleEntity == null) {
+		// Checks if the invisible entity is in a bad state, if so, spawn a new one at the Submissive player's position
+		if (this.invisibleEntity == null || this.invisibleEntity.isDead() || !this.invisibleEntity.isValid()) {
+			// If the entity does exist, try to remove it, just so we don't leave any entities
+			if (this.invisibleEntity != null)
+				this.invisibleEntity.remove();
+			
+			//Creates the new entity
 			this.invisibleEntity = this.Submissive.getWorld().spawnEntity(this.Submissive.getLocation(), EntityType.BAT);
 			
+			//Sets the entities properties
 			LivingEntity livingInvisibleEntity = (LivingEntity) this.invisibleEntity;
 			
 			livingInvisibleEntity.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, 2147483647, 1));
@@ -110,8 +120,10 @@ public class Pair {
 			livingInvisibleEntity.setSilent(true);
 			livingInvisibleEntity.setLeashHolder(this.Dominant);
 		} else {
+			//Gets the location of the Submissive player
 			Location location = this.Submissive.getLocation();
 			
+			//Adds an offset to make it go to about the middle of the Submissive players torso
 			location.add(0, 1.1, 0);
 			
 			invisibleEntity.teleport(location);
