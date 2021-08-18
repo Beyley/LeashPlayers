@@ -84,6 +84,11 @@ public class Pair {
 	}
 	
 	public void checkConditions() {
+		if (this.Submissive.getWorld() != this.Dominant.getWorld()) {
+			this.stopLeashing();
+			return;
+		}
+		
 		// Gets the distance between the 2 players
 		double playerDistance = this.Submissive.getLocation().distance(this.Dominant.getLocation());
 		
@@ -108,7 +113,13 @@ public class Pair {
 				this.invisibleEntity.remove();
 			
 			//Creates the new entity
-			this.invisibleEntity = this.Submissive.getWorld().spawnEntity(this.Submissive.getLocation(), EntityType.BAT);
+			//Gets the location of the Submissive player
+			Location location = this.Submissive.getLocation();
+			
+			//Adds an offset to make it go to about the middle of the Submissive players torso
+			location.add(0, 1.1, 0);
+			
+			this.invisibleEntity = this.Submissive.getWorld().spawnEntity(location, EntityType.BAT);
 			
 			//Sets the entities properties
 			LivingEntity livingInvisibleEntity = (LivingEntity) this.invisibleEntity;

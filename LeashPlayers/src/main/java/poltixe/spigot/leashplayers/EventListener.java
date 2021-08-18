@@ -7,9 +7,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.PlayerDeathEvent;
-import org.bukkit.event.player.PlayerInteractAtEntityEvent;
-import org.bukkit.event.player.PlayerMoveEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.player.*;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import poltixe.spigot.leashplayers.Pair.LeashType;
@@ -50,6 +48,24 @@ public class EventListener implements Listener {
 	@EventHandler
 	public void onPlayerDie(PlayerDeathEvent e) {
 		Player currentPlayer = e.getEntity();
+		List<ReturnPair> pairs = Pair.getAllPairs(currentPlayer);
+		
+		for (ReturnPair returnPair : pairs)
+			returnPair.Pair.stopLeashing();
+	}
+	
+	@EventHandler
+	public void onPlayerTeleport(PlayerTeleportEvent e) {
+		Player currentPlayer = e.getPlayer();
+		List<ReturnPair> pairs = Pair.getAllPairs(currentPlayer);
+		
+		for (ReturnPair returnPair : pairs)
+			returnPair.Pair.stopLeashing();
+	}
+	
+	@EventHandler
+	public void onPlayerLevelChange(PlayerLevelChangeEvent e) {
+		Player currentPlayer = e.getPlayer();
 		List<ReturnPair> pairs = Pair.getAllPairs(currentPlayer);
 		
 		for (ReturnPair returnPair : pairs)
