@@ -43,6 +43,15 @@ public class EventListener implements Listener {
 			
 			pair.stopLeashing();
 		}
+		
+		app.advancementManager.saveProgress(e.getPlayer(), "leashplayers");
+	}
+	
+	@EventHandler
+	public void onPlayerJoin(PlayerJoinEvent e) {
+		Bukkit.getScheduler().runTaskLater(app, () -> app.advancementManager.addPlayer(e.getPlayer()), 3);
+		
+		app.advancementManager.loadProgress(e.getPlayer(), app.firstLeash, app.firstGetLeashed, app.harem);
 	}
 	
 	@EventHandler
@@ -138,6 +147,14 @@ public class EventListener implements Listener {
 			
 			tempPair.Dominant = dominant;
 			tempPair.Submissive = (Player) submissive;
+			
+			if(!app.firstLeash.isDone(tempPair.Dominant)) app.advancementManager.grantAdvancement(tempPair.Dominant, app.firstLeash);
+			if(!app.firstGetLeashed.isDone(tempPair.Submissive)) app.advancementManager.grantAdvancement(tempPair.Submissive, app.firstGetLeashed);
+			
+			if(!app.harem.isDone(tempPair.Dominant)) {
+				if(dominantPairs.size() + 1 >= 2)
+					app.advancementManager.grantAdvancement(tempPair.Dominant, app.harem);
+			}
 			
 			app.Pairs.add(tempPair);
 		}
