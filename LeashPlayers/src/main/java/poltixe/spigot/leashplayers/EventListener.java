@@ -1,153 +1,133 @@
 package poltixe.spigot.leashplayers;
 
-import java.util.Random;
+import java.util.List;
 
-import org.bukkit.*;
-import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.entity.*;
-import org.bukkit.event.*;
+import org.bukkit.Material;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
 import org.bukkit.event.entity.PlayerDeathEvent;
-import org.bukkit.event.weather.WeatherChangeEvent;
+import org.bukkit.event.player.PlayerInteractAtEntityEvent;
+import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.event.player.*;
-import org.bukkit.Material;
-import java.util.ArrayList;
+
+import poltixe.spigot.leashplayers.Pair.LeashType;
 
 //The event listener
 public class EventListener implements Listener {
 	// Get an instance of the plugin
 	private static App app = App.getPlugin(App.class);
-
+	
 	@EventHandler
 	public void onPlayerMove(PlayerMoveEvent e) {
-		PlayerState playerState = PlayerState.getPlayerStateFromGlobal(e.getPlayer());
-
-		playerState.checkConditions();
+		List<Pair> pairs = Pair.getAllSubmissivePairs(e.getPlayer());
+		
+		for (Pair pair : pairs)
+			pair.checkConditions();
 	}
-
+	
 	@EventHandler
 	public void onPlayerDisconnect(PlayerQuitEvent e) {
-		PlayerState playerState = PlayerState.getPlayerStateFromGlobal(e.getPlayer());
-
-		if (playerState.dominant != null) {
-			playerState.player.damage(5);
-			playerState.dominant.stopLeashingPlayer(playerState);
-		} else if (playerState.submissive.size() > 0) {
-			playerState.stopLeashingAllPlayers();
+		Player currentPlayer = e.getPlayer();
+		List<ReturnPair> pairs = Pair.getAllPairs(currentPlayer);
+		
+		for (ReturnPair returnPair : pairs) {
+			Pair pair = returnPair.Pair;
+			if (pair.Submissive.equals(currentPlayer)) {
+				currentPlayer.damage(5);
+			}
+			
+			pair.stopLeashing();
 		}
-
-		app.playerStates.remove(playerState);
 	}
-
+	
 	@EventHandler
 	public void onPlayerDie(PlayerDeathEvent e) {
-		PlayerState playerState = PlayerState.getPlayerStateFromGlobal(e.getEntity());
-
-		if (playerState.dominant != null) {
-			playerState.dominant.stopLeashingPlayer(playerState);
-		} else if (playerState.submissive.size() > 0) {
-			playerState.stopLeashingAllPlayers();
+		Player currentPlayer = e.getEntity();
+		List<ReturnPair> pairs = Pair.getAllPairs(currentPlayer);
+		
+		for (ReturnPair returnPair : pairs) {
+			Pair pair = returnPair.Pair;
+			
+			pair.stopLeashing();
 		}
 	}
-
+	
 	@EventHandler
 	public void onPlayerInteractAtEntity(PlayerInteractAtEntityEvent e) {
-		if (e.getHand() == EquipmentSlot.OFF_HAND) {
+		if (e.getHand() == EquipmentSlot.OFF_HAND)
 			return; // off hand packet, ignore.
-		}
-
-		Player playerThatClicked = e.getPlayer();
-		Entity entityClicked = e.getRightClicked();
-
-		if (entityClicked instanceof Player) {
-			// Bukkit.broadcastMessage("IS PLAYER");
-			// itemHeld.getItemMeta().getDisplayName().equals("Kidnapping Leash")
-
-			ItemStack itemHeld = playerThatClicked.getInventory().getItemInMainHand();
-
-			PlayerState playerStateThatClicked = PlayerState.getPlayerStateFromGlobal(playerThatClicked);
-			PlayerState playerStateThatGotClicked = PlayerState.getPlayerStateFromGlobal((Player) entityClicked);
-
-			if (playerStateThatClicked.dominant == playerStateThatGotClicked && itemHeld.getType() == Material.LEAD
-					&& (itemHeld.getItemMeta().getDisplayName().equals(app.config.getString("nameToCheckFor"))
-							&& (app.config.getBoolean("checkName"))
-							|| (itemHeld.getItemMeta().getDisplayName()
-									.equals(app.config.getString("cursedNameToCheckFor"))
-									&& app.config.getBoolean("cursedCheckName")))) {
-				playerThatClicked.sendMessage("You cannot leash those who leash you!");
+		
+		Player dominant = e.getPlayer();
+		Entity submissive = e.getRightClicked();
+		
+		if (submissive instanceof Player) {
+			
+			ItemStack itemHeld = dominant.getInventory().getItemInMainHand();
+			String leadName = itemHeld.getItemMeta().displayName().toString();
+			
+			boolean canLeash =
+					//#region ugly shit
+					itemHeld.getType() == Material.LEAD &&
+							
+							(leadName.equals(app.config.getString("nameToCheckFor")) &&
+									(app.config.getBoolean("checkName")) ||
+									
+									(leadName.equals(app.config.getString("cursedNameToCheckFor")) &&
+											app.config.getBoolean("cursedCheckName")));
+			//#endregion
+			
+			if (!canLeash)
 				return;
-			}
-
-			if (playerStateThatGotClicked.dominant == null) {
-				// Bukkit.broadcastMessage("PLAYER CAN BE LEASHED");
-
-				// && ((itemHeld.getItemMeta().getDisplayName()
-				// .equals(app.config.getString("nameToCheckFor")) &&
-				// app.config.getBoolean("checkName"))
-				// ||
-				// (itemHeld.getItemMeta().getDisplayName().equals(app.config.getString("cursedNameToCheckFor"))
-				// && app.config.getBoolean("cursedCheckName")))
-
-				if (itemHeld.getType() == Material.LEAD) {
-					boolean wrongName = false;
-
-					if (app.config.getBoolean("checkName")) {
-						if (!itemHeld.getItemMeta().getDisplayName().equals(app.config.getString("nameToCheckFor"))) {
-							// Bukkit.broadcastMessage("WRONG NAME FOR NORMAL");
-							wrongName = true;
-						} else {
-							wrongName = false;
-						}
-					}
-
-					if (wrongName) {
-						if (app.config.getBoolean("cursedCheckName")) {
-							if (!itemHeld.getItemMeta().getDisplayName()
-									.equals(app.config.getString("cursedNameToCheckFor"))) {
-								// Bukkit.broadcastMessage("WRONG NAME FOR CURSED");
-								wrongName = true;
-							} else {
-								wrongName = false;
-							}
-						}
-					}
-
-					if (wrongName) {
-						// Bukkit.broadcastMessage("WRONG NAME");
-						return;
-					}
-
-					if ((itemHeld.getItemMeta().getDisplayName().equals(app.config.getString("cursedNameToCheckFor"))
-							&& app.config.getBoolean("cursedCheckName"))) {
-						playerStateThatClicked.isCursed = true;
-						playerStateThatGotClicked.isCursed = true;
-					} else {
-						playerStateThatClicked.isCursed = false;
-						playerStateThatGotClicked.isCursed = false;
-					}
-
-					if (app.config.getBoolean("cursed") && !app.config.getBoolean("cursedCheckName")) {
-						playerStateThatClicked.isCursed = true;
-						playerStateThatGotClicked.isCursed = true;
-					}
-
-					itemHeld.setAmount(itemHeld.getAmount() - 1);
-
-					playerThatClicked.getInventory().setItemInMainHand(itemHeld);
-
-					playerThatClicked.sendMessage("You leashed " + entityClicked.getName() + "!");
-					entityClicked.sendMessage("You have been leashed!");
-
-					playerStateThatClicked.submissive.add(playerStateThatGotClicked);
-					playerStateThatGotClicked.dominant = playerStateThatClicked;
+			
+			List<ReturnPair> dominantPairs = Pair.getAllPairs(dominant);
+			List<ReturnPair> submissivePairs = Pair.getAllPairs((Player) submissive);
+			
+			// Checks if the player already is leashed
+			for (ReturnPair pair : submissivePairs) {
+				if (pair.IsDominant == false) {
+					dominant.sendMessage("That player is already leashed!");
+					return;
 				}
-			} else if (playerStateThatClicked.submissive.indexOf(playerStateThatGotClicked) != -1) {
-				playerStateThatClicked.stopLeashingPlayer(playerStateThatGotClicked);
-			} else {
-				playerThatClicked.sendMessage("That player is already leashed!");
 			}
+			
+			for (ReturnPair pair : dominantPairs) {
+				if (pair.Pair.Dominant.equals(dominant)) {
+					dominant.sendMessage("You cannot leash those who leash you!");
+					return;
+				}
+			}
+			
+			for (ReturnPair pair : dominantPairs) {
+				if (pair.IsDominant && pair.Pair.Dominant.equals(dominant) && pair.Pair.Submissive.equals(submissive)) {
+					pair.Pair.stopLeashing();
+					return;
+				}
+			}
+			
+			Pair tempPair = new Pair();
+			
+			Pair.LeashType type = Pair.LeashType.WRONG;
+			if (app.config.getBoolean("checkName") && leadName.equals(app.config.getString("nameToCheckFor")))
+				type = LeashType.NORMAL;
+			if (app.config.getBoolean("cursedCheckName") && leadName.equals(app.config.getString("cursedNameToCheckFor")) && app.config.getBoolean("cursed"))
+				type = LeashType.CURSED;
+			
+			tempPair.Type = type;
+			
+			itemHeld.setAmount(itemHeld.getAmount() - 1);
+			dominant.getInventory().setItemInMainHand(itemHeld);
+			
+			dominant.sendMessage("You leashed " + submissive.getName() + "!");
+			submissive.sendMessage("You have been leashed!");
+			
+			tempPair.Dominant = dominant;
+			tempPair.Submissive = (Player) submissive;
+			
+			app.Pairs.add(tempPair);
 		}
 	}
 }

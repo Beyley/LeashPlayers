@@ -8,9 +8,9 @@ import java.util.List;
 
 public class App extends JavaPlugin {
 	public FileConfiguration config = getConfig();
-
-	public List<PlayerState> playerStates = new ArrayList<PlayerState>();
-
+	
+	public List<Pair> Pairs = new ArrayList<Pair>();
+	
 	// Run when the plugin is enabled
 	@Override
 	public void onEnable() {
@@ -22,7 +22,7 @@ public class App extends JavaPlugin {
 		config.addDefault("cursedNameToCheckFor", "Cursed Leash");
 		config.options().copyDefaults(true);
 		saveConfig();
-
+		
 		// Registers an event listener
 		getServer().getPluginManager().registerEvents(new EventListener(), this);
 	}
