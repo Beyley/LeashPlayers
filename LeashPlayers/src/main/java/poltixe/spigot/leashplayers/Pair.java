@@ -1,33 +1,31 @@
 package poltixe.spigot.leashplayers;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import net.kyori.adventure.text.Component;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntityType;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Player;
-import org.bukkit.entity.Bat;
+import org.bukkit.entity.*;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+
 public class Pair {
-	private static App app = App.getPlugin(App.class);
+	private static final App app = App.getPlugin(App.class);
 	public Player Dominant;
 	public Player Submissive;
 	public LeashType Type;
-	private Entity invisEntity;
+	private Entity invisibleEntity;
 	
 	public Pair() {
 	}
 	
 	public static List<Pair> getAllSubmissivePairs(Player dominant) {
-		List<Pair> list = new ArrayList<Pair>();
+		List<Pair> list = new ArrayList<>();
 		for (Pair pair : app.Pairs) {
 			if (pair.Dominant.equals(dominant))
 				list.add(pair);
@@ -46,7 +44,7 @@ public class Pair {
 	}
 	
 	public static List<ReturnPair> getAllPairs(Player player) {
-		List<ReturnPair> list = new ArrayList<ReturnPair>();
+		List<ReturnPair> list = new ArrayList<>();
 		for (Pair pair : app.Pairs) {
 			if (pair.Dominant.equals(player))
 				list.add(new ReturnPair(pair, true));
@@ -58,9 +56,9 @@ public class Pair {
 	}
 	
 	public void stopLeashing() {
-		if (this.invisEntity != null) {
-			this.invisEntity.remove();
-			this.invisEntity = null;
+		if (this.invisibleEntity != null) {
+			this.invisibleEntity.remove();
+			this.invisibleEntity = null;
 		}
 		
 		// Bukkit.broadcastMessage("(DEBUG)Stopping the leash");
@@ -68,11 +66,11 @@ public class Pair {
 		ItemMeta meta = lead.getItemMeta();
 		
 		if (app.config.getBoolean("checkName") && this.Type != LeashType.CURSED)
-			meta.setDisplayName(app.config.getString("nameToCheckFor"));
+			meta.displayName(Component.text(Objects.requireNonNull(app.config.getString("nameToCheckFor"))));
 		lead.setItemMeta(meta);
 		
 		if (app.config.getBoolean("cursedCheckName") && this.Type == LeashType.CURSED)
-			meta.setDisplayName(app.config.getString("cursedNameToCheckFor"));
+			meta.displayName(Component.text(Objects.requireNonNull(app.config.getString("cursedNameToCheckFor"))));
 		lead.setItemMeta(meta);
 		
 		// Bukkit.broadcastMessage("(DEBUG)ADDING THE ITEM");
@@ -87,11 +85,6 @@ public class Pair {
 	public void checkConditions() {
 		double distance = this.Submissive.getLocation().distance(this.Dominant.getLocation());
 		
-		// if (distance > 15) {
-		//     this.stopLeashing();
-		//     return;
-		// }
-		
 		if (distance > 5) {
 			Player p1 = this.Dominant; // Main player
 			Player p2 = this.Submissive; // Player to be pulled.
@@ -105,28 +98,27 @@ public class Pair {
 			}
 		}
 		
-		if (this.invisEntity == null) {
-			this.invisEntity = ((Bat) this.Submissive.getWorld().spawnEntity(this.Submissive.getLocation(),
-					EntityType.BAT));
+		if (this.invisibleEntity == null) {
+			this.invisibleEntity = this.Submissive.getWorld().spawnEntity(this.Submissive.getLocation(), EntityType.BAT);
 			
-			LivingEntity livingInvisEntity = (LivingEntity) this.invisEntity;
+			LivingEntity livingInvisibleEntity = (LivingEntity) this.invisibleEntity;
 			
-			livingInvisEntity.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, 2147483647, 1));
-			livingInvisEntity.setAI(false);
-			livingInvisEntity.setInvulnerable(true);
-			livingInvisEntity.setCollidable(false);
-			livingInvisEntity.setSilent(true);
-			livingInvisEntity.setLeashHolder(this.Dominant);
+			livingInvisibleEntity.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, 2147483647, 1));
+			livingInvisibleEntity.setAI(false);
+			livingInvisibleEntity.setInvulnerable(true);
+			livingInvisibleEntity.setCollidable(false);
+			livingInvisibleEntity.setSilent(true);
+			livingInvisibleEntity.setLeashHolder(this.Dominant);
 		} else {
 			Location location = this.Submissive.getLocation();
 			
 			location.add(0, 1.1, 0);
 			
-			invisEntity.teleport(location);
+			invisibleEntity.teleport(location);
 		}
 	}
 	
-	public static enum LeashType {
+	public enum LeashType {
 		WRONG,
 		NORMAL,
 		CURSED

@@ -1,7 +1,5 @@
 package poltixe.spigot.leashplayers;
 
-import java.util.List;
-
 import org.bukkit.Material;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
@@ -13,13 +11,15 @@ import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
-
 import poltixe.spigot.leashplayers.Pair.LeashType;
+
+import java.util.List;
+import java.util.Objects;
 
 //The event listener
 public class EventListener implements Listener {
 	// Get an instance of the plugin
-	private static App app = App.getPlugin(App.class);
+	private static final App app = App.getPlugin(App.class);
 	
 	@EventHandler
 	public void onPlayerMove(PlayerMoveEvent e) {
@@ -36,9 +36,8 @@ public class EventListener implements Listener {
 		
 		for (ReturnPair returnPair : pairs) {
 			Pair pair = returnPair.Pair;
-			if (pair.Submissive.equals(currentPlayer)) {
+			if (pair.Submissive.equals(currentPlayer))
 				currentPlayer.damage(5);
-			}
 			
 			pair.stopLeashing();
 		}
@@ -65,9 +64,8 @@ public class EventListener implements Listener {
 		Entity submissive = e.getRightClicked();
 		
 		if (submissive instanceof Player) {
-			
 			ItemStack itemHeld = dominant.getInventory().getItemInMainHand();
-			String leadName = itemHeld.getItemMeta().displayName().toString();
+			String leadName = Objects.requireNonNull(itemHeld.getItemMeta().displayName()).toString();
 			
 			boolean canLeash =
 					//#region ugly shit
@@ -88,7 +86,7 @@ public class EventListener implements Listener {
 			
 			// Checks if the player already is leashed
 			for (ReturnPair pair : submissivePairs) {
-				if (pair.IsDominant == false) {
+				if (!pair.IsDominant) {
 					dominant.sendMessage("That player is already leashed!");
 					return;
 				}

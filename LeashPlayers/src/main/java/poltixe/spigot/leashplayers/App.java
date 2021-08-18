@@ -7,9 +7,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class App extends JavaPlugin {
-	public FileConfiguration config = getConfig();
+	public final FileConfiguration config = getConfig();
 	
-	public List<Pair> Pairs = new ArrayList<Pair>();
+	public final List<Pair> Pairs = new ArrayList<>();
 	
 	// Run when the plugin is enabled
 	@Override

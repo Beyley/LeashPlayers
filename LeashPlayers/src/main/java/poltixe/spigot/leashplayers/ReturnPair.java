@@ -1,8 +1,8 @@
 package poltixe.spigot.leashplayers;
 
 public class ReturnPair {
-	public Pair Pair;
-	public boolean IsDominant;
+	public final Pair Pair;
+	public final boolean IsDominant;
 	
 	public ReturnPair(Pair pair, boolean isDominant) {
 		this.Pair = pair;
