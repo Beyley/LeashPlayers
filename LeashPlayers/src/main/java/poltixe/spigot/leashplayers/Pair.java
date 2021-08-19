@@ -57,28 +57,39 @@ public class Pair {
 	}
 	
 	public void stopLeashing() {
+		this.stopLeashing(false);
+	}
+	
+	public void stopLeashing(boolean wasCut) {
 		if (this.invisibleEntity != null) {
 			this.invisibleEntity.remove();
 			this.invisibleEntity = null;
 		}
 		
-		// Bukkit.broadcastMessage("(DEBUG)Stopping the leash");
-		ItemStack lead = new ItemStack(Material.LEAD);
-		ItemMeta meta = lead.getItemMeta();
+		if(!wasCut) {
+			// Bukkit.broadcastMessage("(DEBUG)Stopping the leash");
+			ItemStack lead = new ItemStack(Material.LEAD);
+			ItemMeta meta = lead.getItemMeta();
+			
+			if (app.config.getBoolean("checkName") && this.Type != LeashType.CURSED)
+				meta.displayName(Component.text(Objects.requireNonNull(app.config.getString("nameToCheckFor"))));
+			lead.setItemMeta(meta);
+			
+			if (app.config.getBoolean("cursedCheckName") && this.Type == LeashType.CURSED)
+				meta.displayName(Component.text(Objects.requireNonNull(app.config.getString("cursedNameToCheckFor"))));
+			lead.setItemMeta(meta);
+			
+			// Bukkit.broadcastMessage("(DEBUG)ADDING THE ITEM");
+			this.Dominant.getInventory().addItem(lead);
+		}
 		
-		if (app.config.getBoolean("checkName") && this.Type != LeashType.CURSED)
-			meta.displayName(Component.text(Objects.requireNonNull(app.config.getString("nameToCheckFor"))));
-		lead.setItemMeta(meta);
-		
-		if (app.config.getBoolean("cursedCheckName") && this.Type == LeashType.CURSED)
-			meta.displayName(Component.text(Objects.requireNonNull(app.config.getString("cursedNameToCheckFor"))));
-		lead.setItemMeta(meta);
-		
-		// Bukkit.broadcastMessage("(DEBUG)ADDING THE ITEM");
-		this.Dominant.getInventory().addItem(lead);
-		
-		this.Dominant.sendMessage("You unleashed " + this.Submissive.getName() + "!");
-		this.Submissive.sendMessage("You have been unleashed!");
+		if(wasCut) {
+			this.Dominant.sendMessage(this.Submissive.getName() + " has cut your leash!");
+			this.Submissive.sendMessage("You cut " + this.Dominant.getName() + "'s leash!");
+		} else {
+			this.Dominant.sendMessage("You unleashed " + this.Submissive.getName() + "!");
+			this.Submissive.sendMessage("You have been unleashed!");
+		}
 		
 		app.Pairs.remove(this);
 	}

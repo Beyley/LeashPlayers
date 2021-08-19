@@ -12,7 +12,6 @@ import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import poltixe.spigot.leashplayers.Pair.LeashType;
 
-import java.text.MessageFormat;
 import java.util.List;
 import java.util.Objects;
 
@@ -96,14 +95,13 @@ public class EventListener implements Listener {
 			if(itemHeld.getItemMeta() != null)
 				leadName = itemHeld.getItemMeta().displayName() == null ? "" : Objects.requireNonNull(itemHeld.getItemMeta().displayName()).toString();
 			
-			boolean canLeash =
-			//#region ugly shit
-					itemHeld.getType() == Material.LEAD;
-			//#endregion
+			// Checks if the currently held item is a Lead
+			boolean canLeash = itemHeld.getType() == Material.LEAD;
 			
 			List<ReturnPair> dominantPairs = Pair.getAllPairs(dominant);
 			List<ReturnPair> submissivePairs = Pair.getAllPairs((Player) submissive);
 			
+			// Checks if you clicked on a player you already leashed, if so, unleash them and stop here
 			for (ReturnPair pair : dominantPairs) {
 				if (pair.IsDominant && pair.Pair.Dominant.equals(dominant) && pair.Pair.Submissive.equals(submissive)) {
 					pair.Pair.stopLeashing();
@@ -111,8 +109,14 @@ public class EventListener implements Listener {
 				}
 			}
 			
-			if (!canLeash)
+			// If the user is unable to leash the other player, check if they can cut the leash
+			if (!canLeash) {
+				if(itemHeld.getType() == Material.SHEARS && dominantPairs.size() > 0)
+					for(ReturnPair pair : dominantPairs)
+						pair.Pair.stopLeashing(true);
+				
 				return;
+			}
 			
 			// Checks if the player already is leashed
 			for (ReturnPair pair : submissivePairs) {
